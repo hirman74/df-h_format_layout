@@ -1,0 +1,1 @@
+For support staff to create df -h reports with percentage values represented in colors. For cases when companies/departments have no proper tools for disk space monitoring and instead depends on manual checks. No facility here to append server name into the report since this is not a for each loop connecting to each servers.
