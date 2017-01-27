@@ -347,20 +347,19 @@ End Function
                                             var colRed, colGre, colBlu;
                                             colBlu = 0;
                                             if(redHigh !== NaN) {
-                                                if (percentValue <= 1){
-                                                    colGre = 255;
-                                                    colRed = 0;
-                                                } else if ((percentValue > 1) && (percentValue < (redHigh * diffYelGre))){
-                                                    colGre = 255;
-                                                    colRed = percentValue * (255/(redHigh * diffYelGre));
+                                                if (percentValue >= redHigh) {
+                                                    colRed = 255; colGre = 0;
                                                 } else if (percentValue >= (redHigh * diffYelGre) && (percentValue < redHigh) ){
                                                     aboveYelValue = percentValue - (redHigh * diffYelGre);
                                                     aboveYelUnit = 255 / (redHigh - (redHigh * diffYelGre));
                                                     colGre = 255 - (aboveYelValue * aboveYelUnit);
                                                     colRed = 255;
-                                                } else if (percentValue >= redHigh) {
-                                                    colRed = 255; colGre = 0;
-
+                                                } else if ((percentValue > 1) && (percentValue < (redHigh * diffYelGre))){
+                                                    colGre = 255;
+                                                    colRed = percentValue * (255/(redHigh * diffYelGre));
+                                                } else if (percentValue <= 1){
+                                                    colGre = 255;
+                                                    colRed = 0;
                                                 }
                                             }
 
