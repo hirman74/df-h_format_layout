@@ -180,21 +180,62 @@ End Function
             var cellHolderArray =[];
             var lineArrayOfObjects = [];
             var mountedArray = mountedNames.split(',');
-            var forEachCellObject;
-            var tempHolder, n;            
+            var forEachCellObject = null;
+            var tempHolder, n, newServerName;            
             if (!objFSO.FileExists(outputedFile)) { //check if argument = output file exist
                 alert ("No output file to process! \rPlease paste some data into the data area box.");
                 window.location.reload();
                 return false;
-            } else {
+            } else if (window.document.getElementById('withHost').checked) {
+                jsObjFolder = objFSO.GetFile(outputedFile);
+                if (jsObjFolder.size > 0) { //check if argument = outputedFile file has any contents
+                    outputFile = objFSO.OpenTextFile(outputedFile,ForReading,dontWantCreateIt,AsciiMode);
+                    while (!outputFile.AtEndOfStream){
+                        tempHolder = String(outputFile.readline());
+                        if ((tempHolder.length > 0) && (tempHolder.indexOf('assword') == -1 )) {
+                            cellHolderArray = tempHolder.split(',');
+                            if (cellHolderArray.length == 2) {
+                                if (forEachCellObject != null) {lineArrayOfObjects.push(window.document[forEachCellObject])}
+                                forEachCellObject = js_yyyymmdd_hhmmss (); //naming the object
+                                window.document[forEachCellObject]={}; //create object at global window document
+                                    mountedArray.forEach(function(element){ //using mounted name as object key reference
+                                        if (window.document[forEachCellObject][element] === undefined) { //reference to created object name
+                                            window.document[forEachCellObject][element] = 'NA';//initialize key:value pair of sliceName:PercentValue
+                                        } 
+                                    });                            
+                                window.document[forEachCellObject]['newServerName'] = cellHolderArray[1]
+                            } else if ((cellHolderArray.length > 3) && (forEachCellObject != null)){
+                                mountedArray.forEach(function(element){ //using mounted name as object key:reference value
+                                    if (cellHolderArray[cellHolderArray.length-1] === element)  {
+                                        window.document[forEachCellObject][element] = cellHolderArray[cellHolderArray.length-2];//set key:value pair of sliceName:PercentValue, using last known object name as reference
+                                    } 
+                                });
+                            } else {
+                                alert ("No server hostname found. \rPlease ensure the server name appears before each 'df -h' output.");
+                                window.location.reload();
+                                return false;
+                            }
+                        }
+                    }
+                    if (outputFile.AtEndOfStream) { //at last line of the entry
+                        lineArrayOfObjects.push(window.document[forEachCellObject]);
+                     }
+                    outputFile.Close();
+                    return lineArrayOfObjects;
+                } else {
+                    alert ("No data in output file! \rPlease paste some data into the data area box.");
+                    window.location.reload();
+                    return false;                    
+                }
+            } else if (!(window.document.getElementById('withHost').checked)) {
                 jsObjFolder = objFSO.GetFile(outputedFile);
                 if (jsObjFolder.size > 0) { //check if argument = outputedFile file has any contents
                     outputFile = objFSO.OpenTextFile(outputedFile,ForReading,dontWantCreateIt,AsciiMode);
                     while (!outputFile.AtEndOfStream){ 
                         tempHolder = String(outputFile.readline()); //read output file line by line
-                        if (tempHolder.length > 0){  //check if each line has content                          
+                        if ((tempHolder.length > 0)&& (tempHolder.indexOf('assword') == -1 )){  //check if each line has content                          
                             if (tempHolder.indexOf('ounted') > 0){ //for each chance of meeting Mounted On string.
-                                if(forEachCellObject === undefined){ //very first instance of unanmed object
+                                if(forEachCellObject === null){ //very first instance of unanmed object
                                     forEachCellObject = js_yyyymmdd_hhmmss (); //naming the object
                                     window.document[forEachCellObject]={}; //create object at global window document                                   
                                 } else {
@@ -210,7 +251,7 @@ End Function
                             } else {
                                 cellHolderArray = tempHolder.split(',');//create cell arrays for each line read
                                 mountedArray.forEach(function(element){ //using mounted name as object key:reference value
-                                    if (cellHolderArray[cellHolderArray.length-1] === element) {
+                                    if ((cellHolderArray[cellHolderArray.length-1] === element) && (cellHolderArray.length > 3)) {
                                         window.document[forEachCellObject][element] = cellHolderArray[cellHolderArray.length-2];//set key:value pair of sliceName:PercentValue, using last known object name as reference
                                     } 
                                 });
@@ -257,6 +298,7 @@ End Function
             var text5 = window.document.getElementById('u04').value;
             var textAll = '';
             var tableHeader = [];
+            if (window.document.getElementById('withHost').checked) {tableHeader.push('Server ID')}
             if (text1.length > -1) { textAll += text1 + ','; tableHeader.push(text1)}
             if (text2.length > -1) { textAll += text2 + ','; tableHeader.push(text2)}
             if (text3.length > -1) { textAll += text3 + ','; tableHeader.push(text3)}
@@ -289,7 +331,14 @@ End Function
                             tblBody.appendChild(row);
                             var mountedArray = textAll.split(',');
                             lineArrayOfObjects.forEach(function(el, index, arr){
-                                    row = window.document.createElement("tr");
+                                row = window.document.createElement("tr");
+                                    if (window.document.getElementById('withHost').checked) {
+                                        cell = window.document.createElement("td");//TD for server name
+                                        cell.setAttribute("bgcolor", "transparent");
+                                        cellText = window.document.createTextNode(lineArrayOfObjects[index]['newServerName']);
+                                        cell.appendChild(cellText);
+                                        row.appendChild(cell);
+                                    }                                
                                     mountedArray.forEach(function(element){ //using mounted name as object key reference
                                         cell = window.document.createElement("td");
                                         cellText = window.document.createTextNode(lineArrayOfObjects[index][element]);  
@@ -338,48 +387,54 @@ End Function
                             tblBody.appendChild(row);
                             var mountedArray = textAll.split(',');
                             lineArrayOfObjects.forEach(function(el, index, arr){
-                                    row = window.document.createElement("tr");
-                                    mountedArray.forEach(function(element){ //using mounted name as object key reference
-                                        cell = window.document.createElement("td");
-                                            var percentValue = parseInt(lineArrayOfObjects[index][element]);
-                                            var redHigh = parseInt(window.document.getElementById("amberValue").value);
-                                            var diffYelGre = 95/100; //percent gap between yellow and green. means how far green will turn yellow
-                                            var colRed, colGre, colBlu;
-                                            colBlu = 0;
-                                            if(redHigh !== NaN) {
-                                                if (percentValue >= redHigh) {
-                                                    colRed = 255; colGre = 0;
-                                                } else if (percentValue >= (redHigh * diffYelGre) && (percentValue < redHigh) ){
-                                                    aboveYelValue = percentValue - (redHigh * diffYelGre);
-                                                    aboveYelUnit = 255 / (redHigh - (redHigh * diffYelGre));
-                                                    colGre = 255 - (aboveYelValue * aboveYelUnit);
-                                                    colRed = 255;
-                                                } else if ((percentValue > 1) && (percentValue < (redHigh * diffYelGre))){
-                                                    colGre = 255;
-                                                    colRed = percentValue * (255/(redHigh * diffYelGre));
-                                                } else if (percentValue <= 1){
-                                                    colGre = 255;
-                                                    colRed = 0;
-                                                }
-                                            }
-
-                                            if (lineArrayOfObjects[index][element] === 'NA') {
-                                                cell.setAttribute("bgcolor", "transparent")
-                                            } else if (parseInt(percentValue) === NaN){
-                                                cell.setAttribute("bgcolor", "transparent")
-                                                alert('NaN');
-                                            } else if (parseInt(percentValue) !== NaN){ 
-                                                cell.setAttribute("bgcolor", "rgb(" + parseInt(colRed) + "," + parseInt(colGre) + "," + colBlu + ")")
-                                            } else {
-                                                cell.setAttribute("bgcolor", "transparent")
-                                            }
-                            
-                                        cellText = window.document.createTextNode(lineArrayOfObjects[index][element]);  
-                                        //alert (lineArrayOfObjects[index][element] + '\n' + element );
+                                row = window.document.createElement("tr");
+                                    if (window.document.getElementById('withHost').checked) {
+                                        cell = window.document.createElement("td");//TD for server name
+                                        cell.setAttribute("bgcolor", "transparent");
+                                        cellText = window.document.createTextNode(lineArrayOfObjects[index]['newServerName']);
                                         cell.appendChild(cellText);
                                         row.appendChild(cell);
-                                    });
-                                    tblBody.appendChild(row);                                 
+                                    }
+                                mountedArray.forEach(function(element){ //using mounted name as object key reference
+                                    cell = window.document.createElement("td");
+                                        var percentValue = parseInt(lineArrayOfObjects[index][element]);
+                                        var redHigh = parseInt(window.document.getElementById("amberValue").value);
+                                        var diffYelGre = 95/100; //percent gap between yellow and green. means how far green will turn yellow
+                                        var colRed, colGre, colBlu = 0;
+                                        if (!(isNaN(redHigh))) {
+                                            if (percentValue >= redHigh) {
+                                                colRed = 255; colGre = 0;
+                                            } else if (percentValue >= (redHigh * diffYelGre) && (percentValue < redHigh) ){
+                                                aboveYelValue = percentValue - (redHigh * diffYelGre);
+                                                aboveYelUnit = 255 / (redHigh - (redHigh * diffYelGre));
+                                                colGre = 255 - (aboveYelValue * aboveYelUnit);
+                                                colRed = 255;
+                                            } else if ((percentValue > 1) && (percentValue < (redHigh * diffYelGre))){
+                                                colGre = 255;
+                                                colRed = percentValue * (255/(redHigh * diffYelGre));
+                                            } else if (percentValue <= 1){
+                                                colGre = 255;
+                                                colRed = 0;
+                                            }
+                                        }
+
+                                        if (lineArrayOfObjects[index][element] === 'NA') {
+                                            cell.setAttribute("bgcolor", "transparent")
+                                        } else if (parseInt(percentValue) === NaN){
+                                            cell.setAttribute("bgcolor", "transparent")
+                                            alert('NaN');
+                                        } else if (parseInt(percentValue) !== NaN){ 
+                                            cell.setAttribute("bgcolor", "rgb(" + parseInt(colRed) + "," + parseInt(colGre) + "," + colBlu + ")")
+                                        } else {
+                                            cell.setAttribute("bgcolor", "transparent")
+                                        }
+
+                                    cellText = window.document.createTextNode(lineArrayOfObjects[index][element]);  
+                                    //alert (lineArrayOfObjects[index][element] + '\n' + element );
+                                    cell.appendChild(cellText);
+                                    row.appendChild(cell);
+                                });
+                                tblBody.appendChild(row);                                 
                             });
                         // put the <tbody> in the <table>
                         tbl.appendChild(tblBody);
@@ -424,6 +479,7 @@ End Function
 <table width="80%" border=1>
 <tr><td>Paste 'df -h' results here. [Example as below. Please include line with 'Filesystem' & 'Mounted']</td></tr>
 <tr><td><TEXTAREA style="Height:200px;Width:95%;font-Size:12;font-weight:normal;";TITLE=""; id="textAreaDfResult"; WRAP=hard>
+Linux.Machine.com
 Filesystem             size   used  avail capacity  Mounted on
 /dev/md/dsk/d0         3.9G   1.8G   2.1G    46%    /
 /proc                    0K     0K     0K     0%    /proc
@@ -434,7 +490,27 @@ swap                   6.9G    96K   6.9G     1%    /var/run
 swap                   6.9G   304K   6.9G     1%    /tmp
 /dev/md/dsk/d5         6.9G   3.5G   3.3G    52%    /u02
 /dev/md/dsk/d4         9.8G   2.4G   7.3G    25%    /u01
-/dev/md/dsk/d6         6.8G   3.8G   2.9G    57%    /u03</TEXTAREA></td></tr>
+/dev/md/dsk/d6         6.8G   3.8G   2.9G    57%    /u03
+@192.168.11.100's password:
+localhost2.localdomain
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  34% /var
+@192.168.11.100's password:
+localhost1.localdomain
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /var
+tmpfs                    1.9G   92K  1.9G  61% /u01
+tmpfs                    1.9G  8.7M  1.9G  51% /u04
+tmpfs                    1.9G     0  1.9G  30% /u03
+/dev/mapper/centos-home   20G   39M   20G  41% /u02
+/dev/sda1                497M  166M  332M  34% /boot</TEXTAREA></td></tr>
 
 </table>
 
@@ -442,15 +518,16 @@ swap                   6.9G   304K   6.9G     1%    /tmp
      
 
 <table>
-<tr><td>Select 'Mounted' name to Extract: </td>
-<td><input type="text" id="u01" value="/u01" style="width:40px;"><td>
-<td><input type="text" id="u02" value="/u02" style="width:40px;"><td>
-<td><input type="text" id="u03" value="/u03" style="width:40px;"><td>
-<td><input type="text" id="var" value="/var" style="width:40px;"><td>
-<td><input type="text" id="u04" value="/u04" style="width:40px;"><td>    
-</tr>    
-<tr><td align=left ><input type="button" style="width:140px;height:25px" value="Extract Percentage" onClick="Collecting('basic')" title="Extract percentage values."></td></tr>
-<tr><td align=left><input type="button" style="width:140px;height:25px" value="Reset Page" onClick="window.location.reload()" title="Clear page to default."></td></tr>
+<tr><td colspan=2>Select 'Mounted' name to Extract: </td>
+    <td><input type="text" id="u01" value="/u01" style="width:40px;"></td>
+    <td><input type="text" id="u02" value="/u02" style="width:40px;"></td>
+    <td><input type="text" id="u03" value="/u03" style="width:40px;"></td>
+    <td><input type="text" id="var" value="/var" style="width:40px;"></td>
+    <td><input type="text" id="u04" value="/u04" style="width:40px;"></td>
+</tr>
+<tr><td colspan=7><input type="checkbox" id="withHost" value="withHost"><label for="withHost">hostname script: for f in `cat ./servername.txt;`; do ssh -l username $f 'hostname;df -h;'; done</label></td></tr>
+<tr><td colspan=7><input type="button" style="width:140px;height:25px" value="Extract Percentage" onClick="Collecting('basic')" title="Extract percentage values.">
+&nbsp;&nbsp;&nbsp;<input type="button" style="width:140px;height:25px" value="Reset Page" onClick="window.location.reload()" title="Clear page to default."></td></tr>
 </table>    
 <hr  align="left" width="80%"></hr> 
 <div id='resultTable'>   
@@ -460,7 +537,7 @@ swap                   6.9G   304K   6.9G     1%    /tmp
 <table>
 <tr>
 <td>Color will transition from GREEN to YELLOW to ORANGE to RED as critical level is reached.</td></tr>
-<tr><td>Above <select name="amberValue"  id="amberValue" onChange="Collecting('adv');" >
+<tr><td><select name="amberValue"  id="amberValue" onChange="Collecting('adv');" >
 	<option value="" disabled selected>Select</option>
 	<option value="20">20% </option>
     <option value="25">25% </option>
@@ -478,7 +555,7 @@ swap                   6.9G   304K   6.9G     1%    /tmp
 	<option value="85">85% </option>
 	<option value="90">90% </option>
     <option value="95">95% </option>
-</select> is label as red.</td></tr>
+</select> and above, is label as red.</td></tr>
 </table>
 </div>
 
