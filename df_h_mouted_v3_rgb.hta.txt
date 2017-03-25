@@ -1,0 +1,2064 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>'df -h' Disk Checks Formatting</title>
+<meta charset="utf-8" />
+<!--<meta http-equiv="x-ua-compatible" content="ie=edge" />-->
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<hta:application 
+   id="formatDF"
+   applicationName="directoryFormat"
+   border="thick"
+   borderStyle="sunken"
+   caption="yes"
+   contextMenu="yes"
+   icon=""
+   innerBorder="yes"
+   maximizeButton="yes"
+   minimizeButton="yes"
+   navigable="no"
+   scroll="yes"
+   scrollFlat="no"
+   selection="yes"
+   showInTaskBar="yes"
+   singleInstance="yes"
+   sysMenu="yes"
+   version="1.0"
+   windowState="normal"
+ />
+    
+
+    
+<style type="text/css"> 
+page {
+    background: white;
+    display: block;
+    margin: auto;
+    margin-top: 0.5cm;
+    margin-bottom: 0.5cm;
+    box-shadow: 0 0 0.5cm rgba(0,0,0,0.5);
+}
+page[size="A4"] {  
+  width: 21cm;
+  height: 29.7cm; 
+}    
+    
+@media print {
+  body, page {
+    margin: 0;
+    box-shadow: 0;
+  } 
+}
+    
+img {
+    vertical-align: bottom;
+}
+    
+.labelA4 { 
+    display: block; 
+    border: 1px solid transparent;
+    min-height: 100%; /* for the latest browsers which support min-height */
+    height: auto !important; /* for newer IE versions */
+    height: 100%; /* the only height-related attribute that IE6 does not ignore  */
+    line-height: 1;
+}  
+    
+    
+.eachRows{height: 37px;}
+    
+.tdA4 {
+    border: 1px solid black;
+    margin: 0;
+    height:inherit;
+    font-size: 19px;
+    padding: none;
+}
+    
+.noBorders {
+    height:inherit;
+    border:0;
+    margin: 0;
+    border-collapse: collapse;
+    border-spacing: 0;          
+}
+    
+.tableA4 {
+    border-collapse: collapse;
+    border-spacing: 0;    
+}    
+    
+#a4First {
+    background: rgb(204,204,204); 
+}
+
+#textarea { 
+    width: 95%; 
+    font-size: 9px;  
+    height: inherit;
+    resize: none;
+    overflow-y: hidden;
+    border: bold;
+    border-spacing: 0;
+    font-weight:bold;
+    font-family: "Times New Roman", Times, serif;
+}
+
+    
+</style>
+    
+    
+  
+ 
+
+<script language="vbscript" type="text/vbscript">
+Function removingSpaces(addingFileName,writingFileName)	
+    Dim objFSO
+    Set objFSO = CreateObject("Scripting.FileSystemObject")
+    Set objRead = objFSO.OpenTextFile (addingFileName, 1, True,-2)
+    Set objWrite = objFSO.OpenTextFile (writingFileName, 8, True,-2)
+        Do Until objRead.AtEndOfStream 
+        strLine = objRead.ReadLine
+        arrSpaceGap = Split (strLine, " ")
+        p = ""
+            For each n in arrSpaceGap
+                If len(n) > 0 AND n <> " " Then
+                    If p = " " Then
+                        p = Trim(n)				
+                    Else
+                        p = p & "," & Trim(n)
+                    End If
+                End If
+            Next
+            If Len(p) > 1 Then
+                objWrite.writeline p
+            End If
+        Loop
+    objRead.close
+    objWrite.close
+    Set objFSO = Nothing
+    Set objWrite = Nothing
+    Set objRead = Nothing
+End Function
+Function HideWindow()
+    intLeft = window.screenLeft
+    intTop = window.screenTop
+    window.moveTo -2000,-2000
+    window.moveTo intLeft,intTop
+End Function
+Function sleepingVB()	
+	Set oShell = CreateObject("WScript.Shell")
+	cmd = "%COMSPEC% /c ping -n 1 127.0.0.1>nul"
+	oShell.Run cmd,0,1	
+	Set oShell = Nothing
+End Function
+</script>
+
+	<script type="text/javascript" language="javascript">
+	 <!--
+         
+    function printDiv(divID) {
+    
+        
+        //Get the HTML of div        
+        var divElements = document.getElementById(divID).innerHTML;
+
+        
+        //Get the HTML of whole page
+        var oldPage = document.body.innerHTML;
+        //Reset the page's HTML with div's HTML only
+        document.body.innerHTML = 
+        "<html><head><title></title>" +     
+        "<style type='text/css'>" + 
+'img {vertical-align: bottom;  }' +
+'.labelA4 {display: block;  border: 1px solid transparent;  min-height: 100%;  height: auto !important;  height: 100%;  line-height: 1;}' +
+'.eachRows{height: 37px;}' +
+'.tdA4 {border: 1px solid black;  margin: 0;  height:inherit;  font-size: 19px;  padding: none;  }' +
+'.noBorders {border:0;  margin: 0;  border-collapse: collapse; height:inherit; border-spacing: 0;}' +
+'.tableA4 {border-collapse: collapse;  border-spacing: 0;}' +
+'#textarea {width: 95%;  font-size: 9px;  height: inherit;  resize: none;  overflow-y: hidden;  border: bold;  border-spacing: 0;  font-weight:bold;  font-family: "Times New Roman", Times, serif;  }' +            
+        "table {border-collapse: collapse;border-spacing: 0;}" + 
+        //"td {border:1px solid black;margin: 0;font-size:19px;}" + 
+        "td.noBottom{border-bottom:0 !important;}" +
+        "textarea{border:none;}" +
+        //".tdA4 {border: 1px solid black; margin: 0; height:inherit;padding: none;}" +
+        //'#textarea {width: 170px; font-size: 11px; height:inherit; resize: none; overflow-y: hidden; border: none;font-weight:bold;font-family: "Times New Roman", Times, serif;}' +
+        "</style></head><body>" + divElements + "</body>";
+        //Print Page
+        window.print();
+
+        //Restore orignal HTML
+        document.body.innerHTML = oldPage;  
+    }           
+        
+        function Set(){   // this limits the size of the window opened and positions it
+            //var l=(screen.width); // centre - half the window width
+            //var t=(screen.height); // where you want it vertically
+            self.moveTo(10,5);
+            self.resizeTo(screen.width,screen.height-50); // as you can see, this example opens a longish but squat window, near the task-bar
+            }          
+    
+        function Minimize(){
+            window.innerWidth = 100;
+            window.innerHeight = 100;
+            window.screenX = screen.width;
+            window.screenY = screen.height;
+            alwaysLowered = true;
+            }
+
+        function Maximize(){
+            window.innerWidth = screen.width;
+            window.innerHeight = screen.height;
+            window.screenX = 0;
+            window.screenY = 0;
+            alwaysLowered = false;
+            }    
+	   
+
+		objFSO = new ActiveXObject("Scripting.FileSystemObject");
+		ForWriting = 2;
+		ForReading = 1;
+		ForAppending = 8;
+		CreateIt = true;
+		dontWantCreateIt = false;
+		AsciiMode = 0;  
+		UnicodeMode = -1;
+		systemDefaultMode = -2;
+		var i;
+		var j;
+		
+    function js_yyyymmdd_hhmmss () {
+          now = new Date();
+          year = "" + now.getFullYear();
+          month = "" + (now.getMonth() + 1); if (month.length == 1) { month = "0" + month; }
+          day = "" + now.getDate(); if (day.length == 1) { day = "0" + day; }
+          hour = "" + now.getHours(); if (hour.length == 1) { hour = "0" + hour; }
+          minute = "" + now.getMinutes(); if (minute.length == 1) { minute = "0" + minute; }
+          second = "" + now.getSeconds(); if (second.length == 1) { second = "0" + second; }
+          return year + month + day + "_" + hour + minute + second;
+    }	
+
+    var fileFolderHelper = {
+        CopyFile:   function (FromFile,ToFile,overwrite) {  // Set overwrite to true or false; FromFile, etc = full paths
+                      var f = objFSO.GetFile(FromFile);
+                      f.Attributes[0];
+                      f.Copy(ToFile,overwrite);
+                    },
+        MakeFolder: function (NewFolderName,DesiredPath){
+                      NewFolderName = objFSO.CreateFolder(DesiredPath); // 'DesiredFolderPath' : e.g., "C:\\MainFolder\\NewFolderName". 
+                    },
+        DeleteFolder: function (gpath){   // where gpath = full folder path
+                      if (objFSO.FolderExists(gpath)) {var afolder = objFSO.GetFolder(gpath); afolder.Delete();}
+                    },
+        CopyFolder : function (FromFolder,ToFolder,overwrite) {  // where FromFolder, etc = full folder paths
+                      var f = objFSO.GetFolder(FromFolder);
+                      f.Copy(ToFolder,overwrite);
+                    },
+        CheckMakeFolder: function (NewFolderName) {
+                      if (objFSO.FolderExists(NewFolderName)) {} else {var afolder = objFSO.CreateFolder(NewFolderName);} 
+                    },
+        DeleteFile: function (gpath) {
+                    if (objFSO.FileExists(gpath)) {
+                        var afile = objFSO.GetFile(gpath);
+                        afile.Attributes[0];
+                        afile.Delete();
+                    }
+                    }
+    }
+
+    function countingDigits(numbersIn){
+        var numLength = numbersIn.toString();
+        switch(numLength.length) {
+            case 1:
+                return '00' + numLength;
+                break;
+            case 2:
+                return '0' + numLength;
+                break;
+            default:
+                return numbersIn.toString();
+        }
+    }
+
+    function findMountedOnPartTwo (outputedFile, mountedArray, percentArrayMax) { 
+        var cellHolderArray =[];
+        var lineArrayOfObjects = [];
+        //var mountedArray = mountedNames.split(',');//list of selected slice name to search
+        var forEachCellObject = null;
+        var jsObjFolder, outputFile, tempHolder, tempHolderAll, serverHeadersName, serverHeadersNameCount, serverHeadersMounted, newSName, n, ownSelf = this ;
+
+
+        if (!objFSO.FileExists(outputedFile)) { //check if argument = output file exist
+            alert ("No output file to process! \rPlease paste some data into the data area box.");
+            window.location.reload();
+            return false;
+        } else {
+            jsObjFolder = objFSO.GetFile(outputedFile);
+            if (jsObjFolder.size > 0) { //check if argument = outputedFile file has any contents
+                outputFile = objFSO.OpenTextFile(outputedFile,ForReading,dontWantCreateIt,AsciiMode);
+                while (!outputFile.AtEndOfStream){
+                    tempHolderAll=String(outputFile.readAll());
+                }
+                    outputFile.Close();
+                    serverHeadersName = []
+                    serverHeadersNameCount=[];
+                    serverHeadersMounted=[];
+                    var tempHolderAllArray = tempHolderAll.split('\n'); //to tally if hostname == Mounted On results. Reading each line.
+                    for(n=0; n < tempHolderAllArray.length; n++){
+                        cellHolderArray = tempHolderAllArray[n].split(',');//space removed into cell
+                        if ((cellHolderArray.length == 2) && !(cellHolderArray[1].indexOf("-------") !== -1)) {//look for hostname value && remove line -------
+                            serverHeadersNameCount.push(n);
+                            serverHeadersName.push(cellHolderArray[1]); //create an array of found server hostname
+                        } else if (tempHolderAllArray[n].indexOf('ounted') > 0){
+                            serverHeadersMounted.push(n);
+                        }
+                    }
+
+                    if (serverHeadersNameCount.length == serverHeadersMounted.length) {//server hostname and Mounted On is the same!                       
+                        outputFile = objFSO.OpenTextFile(outputedFile,ForReading,dontWantCreateIt,AsciiMode);
+                        while (!outputFile.AtEndOfStream){
+                            tempHolder = String(outputFile.readline());
+                            if ((tempHolder.length > 0) && (tempHolder.indexOf('assword') == -1 ) && !(tempHolder.indexOf('-------') !== -1 )) {//ensure that string is relevant
+                                cellHolderArray = tempHolder.split(',');
+                                if (tempHolder.indexOf('ounted') > 0) {//look for Mounted Value
+                                    if (forEachCellObject != null) {//object already present, dont write it. Push to arrays of objects.
+                                        lineArrayOfObjects.push(ownSelf[forEachCellObject]);//place populated value object into global array
+                                        serverHeadersName.shift();
+                                    } else if (forEachCellObject == null){}
+                                    forEachCellObject = js_yyyymmdd_hhmmss (); //naming a new object
+                                    ownSelf[forEachCellObject]={}; //create object at global window document. Object is placed in array located at global window DOM.
+                                    ownSelf[forEachCellObject]['newServerName']=serverHeadersName[0];
+                                    mountedArray.forEach(function(element){ //using mounted name as object key reference
+                                        if (ownSelf[forEachCellObject][element] === undefined) { //reference to created object name
+                                            ownSelf[forEachCellObject][element] = 'NA';//INITIALIZED key:value pair of sliceName:PercentValue
+                                        }
+                                    }); 
+                                } else if ((cellHolderArray.length > 3) && (forEachCellObject != null)){
+                                    for (var n=0; n < mountedArray.length; n++) {
+                                        var element = mountedArray[n];//slice value at HTA input box
+                                        if (cellHolderArray[cellHolderArray.length-1] === element)  {//found match of slice name in readline
+                                            ownSelf[forEachCellObject][element] = cellHolderArray[cellHolderArray.length-2].replace("%","") + "," + percentArrayMax[n];
+                                            //set key:value pair of sliceName:PercentValue, using last known object name as reference
+                                            //element = slicename; value = PercentValue,PercentLimit
+                                        }                                         
+                                        
+                                    }
+                                } 
+                            }
+                        }
+                        if (outputFile.AtEndOfStream) { //at last line of the entry
+                            lineArrayOfObjects.push(ownSelf[forEachCellObject]);
+                         }                            
+                        outputFile.Close();
+                    } else {
+                        outputFile = objFSO.OpenTextFile(outputedFile,ForReading,dontWantCreateIt,AsciiMode);
+                        while (!outputFile.AtEndOfStream){
+                            tempHolder = String(outputFile.readline()); 
+                            if ((tempHolder.length > 0) && (tempHolder.indexOf('assword') == -1 ) && !(tempHolder.indexOf('-------') !== -1 )) {//ensure that string is relevant
+                                cellHolderArray = tempHolder.split(',');
+                                if (tempHolder.indexOf('ounted') > 0) {                                        
+                                    if(forEachCellObject != null){//object already present, dont write it. Push to arrays of objects.
+                                        lineArrayOfObjects.push(ownSelf[forEachCellObject]);//place populated value object into global array
+                                    }
+                                    forEachCellObject = js_yyyymmdd_hhmmss (); //naming a new object
+                                    ownSelf[forEachCellObject]={}; //create object at global window document. Object is placed in array located at global window DOM.
+                                    mountedArray.forEach(function(element){ //using mounted name as object key reference
+                                        if (ownSelf[forEachCellObject][element] === undefined) { //reference to created object name
+                                            ownSelf[forEachCellObject][element] = 'NA';//INITIALIZED key:value pair of sliceName:PercentValue
+                                        }
+                                    }); 
+                                    if ((serverHeadersNameCount[0] - serverHeadersMounted[0]) < 3){
+                                        ownSelf[forEachCellObject]['newServerName']=serverHeadersName[0];
+                                        serverHeadersName.shift();
+                                        serverHeadersNameCount.shift();
+                                        serverHeadersMounted.shift();
+                                    } else {
+                                        ownSelf[forEachCellObject]['newServerName']='MissingHostname!';
+                                        serverHeadersMounted.shift();
+                                    } 
+                                } else if ((cellHolderArray.length > 3) && (forEachCellObject != null)){
+                                    for (var n=0; n < mountedArray.length; n++) {
+                                        var element = mountedArray[n];//slice value at HTA input box
+                                        if (cellHolderArray[cellHolderArray.length-1] === element)  {//found match of slice name in readline
+                                            ownSelf[forEachCellObject][element] = cellHolderArray[cellHolderArray.length-2].replace("%","") + "," + percentArrayMax[n];
+                                            //set key:value pair of sliceName:PercentValue, using last known object name as reference
+                                            //element = slicename; value = PercentValue,PercentLimit
+                                        }                                         
+                                        
+                                    } 
+                                }
+                            }
+                        }
+                        if (outputFile.AtEndOfStream) { //at last line of the entry
+                            lineArrayOfObjects.push(ownSelf[forEachCellObject]);
+                         }                               
+                        outputFile.Close();
+                    };
+                return lineArrayOfObjects;
+
+            } else {
+                alert ("No data in output file! \rPlease paste some data into the data area box.");
+                window.location.reload();
+                return false;                    
+            }
+        } 
+    }
+
+    function checkingRepeatedSliceNames (sliceNames) {
+        var sliceHolder = [], n = null, o = null;
+        sliceNames.forEach(function(el, index, arr){
+            if (el.indexOf("var") == -1 ){
+                sliceHolder.push(el.replace("/u",""));
+            } else { sliceHolder.push(el.replace("/","")); }            
+        });
+        sliceHolder.sort();
+        
+        for (var i=0; i < sliceHolder.length; i++) {
+            n=sliceHolder[i];
+            if(sliceHolder[i + 1] != undefined) {
+                o = sliceHolder[i + 1];
+            } else {n = "w";o = "k"}
+            if (n === o) {
+                alert('Found instances of two same disk check. \nPlease ensure each disk check name is unique');
+                i = sliceHolder.length;
+                return false;
+            } 
+        }
+    }
+
+    function perSlicePercent(){
+        var eachSlicePercent = document.getElementById('nameMountedSlice');
+        var eachSelectTag = eachSlicePercent.getElementsByTagName('SELECT');
+        var eachInputTag = eachSlicePercent.getElementsByTagName('INPUT');
+        var thresholdPercent = [];
+        var sliceNames = [];
+        var percentSliceArr = [];
+        for(var i = 0; i < eachSelectTag.length; i++) {
+            thresholdPercent.push(eachSelectTag[i].value);//max percent limit
+        }
+        for(var i = 1; i < eachInputTag.length-1; i++) {
+            sliceNames.push(eachInputTag[i].value); //actual disk slice name
+        }
+
+        for(var i = 0; i < thresholdPercent.length; i++) {
+            percentSliceArr.push(sliceNames[i] + "  " + thresholdPercent[i]);
+        }
+        
+        if (checkingRepeatedSliceNames(sliceNames) !== false) {CollectingPartTwo (percentSliceArr)}        
+        /*
+        mountedArray.forEach(function(element){ //using mounted name as object key reference
+            cell = window.document.createElement("td");
+            cellText = window.document.createTextNode(lineArrayOfObjects[index][element]);  
+            cell.appendChild(cellText);
+            cell.style.setAttribute('text-align', 'center');
+            cell.setAttribute("id", lineArrayOfObjects[index]['newServerName'] + "_" + element + "_" + lineArrayOfObjects[index][element]);
+            //id=serverName_/sliceName_percentage%
+            row.appendChild(cell);
+        });
+        */
+    }        
+        
+    function CollectingPartTwo (percentSliceArr){//collect textArea box entry, parse sliceName " " maxPercentLimit
+        fileFolderHelper.CheckMakeFolder('.\\input');
+        fileFolderHelper.CheckMakeFolder('.\\output');
+        var newDateFileName = js_yyyymmdd_hhmmss ();
+
+        var dfResults = window.document.getElementById('textAreaDfResult').value;
+        var splitdfResults = dfResults.split('\n');
+        for( var i=0; i < splitdfResults.length; i++) {
+            outputFile1 = objFSO.OpenTextFile('.\\input\\' + newDateFileName ,ForAppending,CreateIt,AsciiMode);
+            outputFile1.writeline (splitdfResults[i]);//label each results into formatted text file.
+            outputFile1.Close();
+        }
+        removingSpaces('.\\input\\' + newDateFileName,'.\\output\\' + newDateFileName);//using vbscript code here
+
+        var textAll = '';
+        var tableHeader = [], mountedArray =[], tableHeader=[], percentArrayMax=[] ;
+        tableHeader.push('Server Hostname');
+
+        for( var i=0; i < percentSliceArr.length; i++) {
+            var idxOfEach = percentSliceArr[i].split("  ")[0];
+            mountedArray.push(idxOfEach); //slice name with slash infront
+            tableHeader.push(idxOfEach); //slice name with slash infront
+            idxOfEach = percentSliceArr[i].split("  ")[1];
+            percentArrayMax.push(idxOfEach); //percent MAX of each slice
+        }               
+
+        lineArrayOfObjects = findMountedOnPartTwo ('.\\output\\' + newDateFileName, mountedArray, percentArrayMax);//array of objects containing key newServerName/server and key=sliceName/value=percent
+
+            if (lineArrayOfObjects != false){
+                
+                fileListDiv = window.document.getElementById('headerTable');
+                while (fileListDiv.hasChildNodes()) {   
+                    fileListDiv.removeChild(fileListDiv.firstChild);
+                }                 
+                                
+                    var body = window.document.getElementById('headerTable');
+                        var tbl  = window.document.createElement("table");
+                        //tbl.setAttribute("width", "80%");
+                        var tblBody = window.document.createElement("tbody");  
+                        var row = window.document.createElement("tr");     
+                        for (col = 0; col < tableHeader.length; col++){
+                            // Create a <td> element and a text node, make the text
+                            // node the contents of the <td>, and put the <td> at
+                            // the end of the table row
+                            var cell = window.document.createElement("td");
+                            var cellText = window.document.createTextNode(tableHeader[col]);
+                            cell.appendChild(cellText);
+                            cell.style.setAttribute('text-align', 'center');
+                            if (tableHeader[col] == 'Server Hostname') {
+                                cell.style.setAttribute('width', '250px');
+                            } else {
+                                cell.style.setAttribute('width', '125px');
+                            }
+                            row.appendChild(cell);
+                        }  
+                        // add the row to the end of the table body
+                        tblBody.appendChild(row);        
+                        // put the <tbody> in the <table>
+                        tbl.appendChild(tblBody);
+                        // appends <table> into <body>
+                        body.appendChild(tbl);
+                        // sets the border attribute of tbl to 2;
+                        tbl.setAttribute("border", "2");    
+                
+                fileListDiv = window.document.getElementById('resultTable');
+                while (fileListDiv.hasChildNodes()) {   
+                    fileListDiv.removeChild(fileListDiv.firstChild);
+                }                 
+
+                    var body = window.document.getElementById('resultTable');
+                    var tbl  = window.document.createElement("table");
+                    //tbl.setAttribute("width", "80%");
+                    var tblBody = window.document.createElement("tbody");  
+                    var row = window.document.createElement("tr");  
+                        lineArrayOfObjects.forEach(function(el, index, arr){
+                            row = window.document.createElement("tr");
+                                    cell = window.document.createElement("td");//TD for server name
+                                    cell.setAttribute("bgcolor", "transparent");
+                                    cellText = window.document.createTextNode(lineArrayOfObjects[index]['newServerName']);
+                                    cell.appendChild(cellText);
+                                    cell.style.setAttribute('text-align', 'center');
+                                    cell.style.setAttribute('width', '250px'); 
+                                    row.appendChild(cell);
+
+                            mountedArray.forEach(function(element){ //using mounted name as object key reference
+                                cell = window.document.createElement("td");
+                                    var percentString = lineArrayOfObjects[index][element].split(",");
+                                    var percentValue = parseInt(percentString[0]); //percentValue
+                                    var redHigh = parseInt(percentString[1]); //percentLimit
+                                    var diffYelGre = 95/100; //percent gap between yellow and green. means how far green will turn yellow
+                                    var colRed, colGre, colBlu = 0;                                
+                                
+                                    var colRed, colGre = 0, colBlu = 0;
+                                    if (isNaN(percentValue)) {
+                                        percentValue = 'NA';
+                                    } else if (!(isNaN(redHigh))) {
+                                        if (percentValue >= redHigh) {
+                                            colRed = 255; colGre = 0;
+                                        } else if (percentValue >= (redHigh * diffYelGre) && (percentValue < redHigh) ){
+                                            aboveYelValue = percentValue - (redHigh * diffYelGre);
+                                            aboveYelUnit = 255 / (redHigh - (redHigh * diffYelGre));
+                                            colGre = 255 - (aboveYelValue * aboveYelUnit);
+                                            colRed = 255;
+                                        } else if ((percentValue > 1) && (percentValue < (redHigh * diffYelGre))){
+                                            colGre = 255;
+                                            colRed = percentValue * (255/(redHigh * diffYelGre));
+                                        } else if (percentValue <= 1){
+                                            colGre = 255;
+                                            colRed = 0;
+                                        }
+                                    }
+
+                                    if (percentValue === 'NA') {
+                                        cell.setAttribute("bgcolor", "transparent")
+                                        cell.style.setAttribute('width', '125px');
+                                    } else if (percentValue === NaN){
+                                        cell.setAttribute("bgcolor", "transparent")
+                                        cell.style.setAttribute('width', '125px');
+                                        alert('NaN');
+                                    } else if (parseInt(percentValue) !== NaN){ 
+                                        cell.setAttribute("bgcolor", "rgb(" + parseInt(colRed) + "," + parseInt(colGre) + "," + colBlu + ")");
+                                        cell.style.setAttribute('width', '125px');
+                                    } /*else if ((parseInt(percentValue) !== NaN) && (percentValue >= redHigh)) { 
+                                        cell.setAttribute("bgcolor", "rgb(255,0,0)")
+                                        cell.style.setAttribute('width', '125px');
+                                    } */else {
+                                        cell.setAttribute("bgcolor", "transparent")
+                                        cell.style.setAttribute('width', '125px');
+                                    }
+
+                                //cellText = window.document.createTextNode(lineArrayOfObjects[index][element]);
+                                var cellPercentValue = (isNaN(percentValue))?percentValue:percentValue + '%';
+                                cellText = window.document.createTextNode(cellPercentValue);  
+                                //cell.setAttribute("id", lineArrayOfObjects[index]['newServerName'] + "_" + element + "_" + lineArrayOfObjects[index][element]);
+                                cell.setAttribute("id", lineArrayOfObjects[index]['newServerName'] + "_" + element + "_" + percentValue + "_" + redHigh);
+                                //id=serverName_/sliceName_percentage%
+                                cell.appendChild(cellText);
+                                //cell.style.setAttribute('text-align', 'center');
+                                row.appendChild(cell);
+                            });
+                            tblBody.appendChild(row);
+
+                        });
+
+
+                    // put the <tbody> in the <table>
+                    tbl.appendChild(tblBody);
+                    // appends <table> into <body>
+                    body.appendChild(tbl);
+                    // sets the border attribute of tbl to 2;
+                    tbl.setAttribute("border", "2");
+                self.resizeTo('1','1'); 
+                sleepingVB();
+                self.resizeTo(screen.width,screen.height-50);  
+                self.moveTo(5,5); 
+                body.style.setAttribute("height","200px")
+
+            fileFolderHelper.DeleteFile('.\\output\\' + newDateFileName);
+            fileFolderHelper.DeleteFile('.\\input\\' + newDateFileName);
+            fileFolderHelper.DeleteFolder('.\\input');
+            fileFolderHelper.DeleteFolder('.\\output');
+            } 
+    }
+        
+    function clickToggle(rowTR,localSide){
+        var localTR = rowTR.parentNode.parentNode;
+        var textEntryTD = localTR.getElementsByTagName('TD');
+        if (localSide == 'OK'){
+            textEntryTD[6].style.color = 'black';
+            textEntryTD[7].style.color = 'transparent';
+        } else if(localSide == 'NOK'){
+            textEntryTD[6].style.color = 'transparent';
+            textEntryTD[7].style.color = 'black';            
+            
+        }
+        //alert(textEntryTD[6].childNodes[0].childNodes[0].nodeValue + " " + textEntryTD[7].childNodes[0].childNodes[0].nodeValue);
+        //document.getElementById(localSelf.parentNode.parentNode.id + "_" + localSide).style.color = 'black';
+        //document.getElementById(localSelf.parentNode.parentNode.id + "_" + nextSide).style.color = 'transparent';
+    } 
+        
+    function tickSelector(){
+        var tickSelector_TableBody = window.document.getElementById('resultTable');                
+        var tickSelector_TagList = tickSelector_TableBody.getElementsByTagName('TD'); 
+        var hostnameInID = [], childIDColor=[], serverRED=[];
+        for(var i = 0; i < tickSelector_TagList.length; i ++){
+            if(tickSelector_TagList[i].getAttribute('id') != null) {
+                hostnameInID.push(tickSelector_TagList[i].getAttribute('id')); 
+                childIDColor.push(tickSelector_TagList[i].getAttribute('bgcolor')); 
+            }
+        }
+        //("id", lineArrayOfObjects[index]['newServerName'] + "_" + element + "_" + percentValue + "_" + redHigh);
+        //cell.setAttribute("bgcolor", "rgb(255,0,0)");
+        for (var i =0; i < childIDColor.length; i ++) {
+            if(childIDColor[i].indexOf('rgb(255,0,0)') > -1){                
+                serverRED.push(hostnameInID[i].split('_')[0].trim());
+            }
+        }
+        /*<tr class='eachRows' id='MainServer-01' align=center>
+                <td class="noBorders">&nbsp;</td>
+                <td class="tdA4" >Central1</td>
+                <td class="tdA4" ></td>
+                <td class="tdA4" ></td>
+                <td class="tdA4" ></td>
+                <td class="tdA4" ></td>
+                <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                <td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+                <td class="noBorders">&nbsp;</td>
+        </tr>*/
+        var tickSelector_A4TableBody = window.document.getElementById('a4First');
+        var tickSelector_TrRow=tickSelector_A4TableBody.getElementsByTagName('TR');
+           for(j=0; j < tickSelector_TrRow.length; j++){//at A4 Page
+                if ((tickSelector_TrRow[j].getAttribute('id') == null) || (tickSelector_TrRow[j].getAttribute('id').indexOf('rowHead') > -1)) {//skip irrelevant ID.
+                    continue;
+                }
+               var cellTdA4 = tickSelector_TrRow[j].getElementsByTagName('TD'); //default as OK
+               cellTdA4[6].style.color = 'black';  //default as OK
+               cellTdA4[7].style.color = 'transparent';    //default as OK             
+               for (var k=0; k < serverRED.length; k++){
+                   if (tickSelector_TrRow[j].getAttribute('id').indexOf(serverRED[k]) > -1){ //NOK result
+                       var cellTdA4 = tickSelector_TrRow[j].getElementsByTagName('TD');
+                       cellTdA4[7].style.color = 'black'; 
+                       cellTdA4[6].style.color = 'transparent';
+                       break;
+                   }
+               }
+            }
+    }
+        
+        
+
+    function id2Table(){                
+        var rootTableBody = window.document.getElementById('resultTable');                
+        var collectTagList = rootTableBody.getElementsByTagName('TD');
+        var sliceNameResults = [], i, j, columnA4List=['/u01','/u02','/u04','/var'];
+        for(i = 0; i < collectTagList.length; i ++){
+            if(collectTagList[i].getAttribute('id') != null) {
+             sliceNameResults.push(collectTagList[i].getAttribute('id')); 
+            }
+        }
+        if (sliceNameResults.length == 0){
+            alert("Please extract percentage value first."); 
+            return;
+        }
+        var A4TableBody = window.document.getElementById('a4First');
+        var serverNameTRArray=A4TableBody.getElementsByTagName('TR');
+            for (i=0; i < sliceNameResults.length; i++ ){
+                if (sliceNameResults[i].indexOf('undefined') > -1) {//read the collected percentage results.
+                    continue;
+                }
+                var arrayIDSplit = sliceNameResults[i].split('_');//from resultTable
+                //checkIDArray.innerHTML = checkIDArray.innerHTML + " " + arrayIDSplit[0] ;
+                for(j=0; j<serverNameTRArray.length; j++){//at A4 Page
+                    if ((serverNameTRArray[j].getAttribute('id') == null) || (serverNameTRArray[j].getAttribute('id').indexOf('rowHead') > -1)) {//read the collected percentage results.
+                        continue;
+                    }             
+                    if ( arrayIDSplit[0].indexOf(serverNameTRArray[j].getAttribute('id')) > -1 ) {
+                        var cellTdA4 = serverNameTRArray[j].getElementsByTagName('TD');
+
+                        switch (arrayIDSplit[1]) {
+                            case columnA4List[0]:
+                                while (cellTdA4[2].hasChildNodes()) {   
+                                    cellTdA4[2].removeChild(cellTdA4[2].firstChild);
+                                }
+                                var addCellText = (arrayIDSplit[2].indexOf('NA') == -1)?arrayIDSplit[2] + "%":arrayIDSplit[2];
+                                cellTdA4[2].appendChild(document.createTextNode(addCellText)); 
+                                //cellTdA4[2].appendChild(document.createTextNode(arrayIDSplit[2] + "%"));
+                                break;
+                            case columnA4List[1]:
+                                while (cellTdA4[3].hasChildNodes()) {   
+                                    cellTdA4[3].removeChild(cellTdA4[3].firstChild);
+                                }   
+                                var addCellText = (arrayIDSplit[2].indexOf('NA') == -1)?arrayIDSplit[2] + "%":arrayIDSplit[2];
+                                cellTdA4[3].appendChild(document.createTextNode(addCellText));                                         
+                                //cellTdA4[3].appendChild(document.createTextNode(arrayIDSplit[2] + "%")); 
+                                break;
+                            case columnA4List[2]:
+                                while (cellTdA4[4].hasChildNodes()) {   
+                                    cellTdA4[4].removeChild(cellTdA4[4].firstChild);
+                                }    
+                                var addCellText = (arrayIDSplit[2].indexOf('NA') == -1)?arrayIDSplit[2] + "%":arrayIDSplit[2];
+                                cellTdA4[4].appendChild(document.createTextNode(addCellText));                                         
+                                //cellTdA4[4].appendChild(document.createTextNode(arrayIDSplit[2] + "%")); 
+                                break;
+                            case columnA4List[3]:
+                                while (cellTdA4[5].hasChildNodes()) {   
+                                    cellTdA4[5].removeChild(cellTdA4[5].firstChild);
+                                }        
+                                var addCellText = (arrayIDSplit[2].indexOf('NA') == -1)?arrayIDSplit[2] + "%":arrayIDSplit[2];
+                                cellTdA4[5].appendChild(document.createTextNode(addCellText));                                         
+                                //cellTdA4[5].appendChild(document.createTextNode(arrayIDSplit[2] + "%")); 
+                                break;
+                        }        
+
+                    }
+                }
+            }
+        tickSelector();
+    }    
+   
+    -->
+	</script>
+ 
+</head>
+<body onload="Set()">
+<table width="80%" border=1>
+<tr><td>Paste 'df -h' results here. [Example as below. Please include line with 'Filesystem' & 'Mounted']</td></tr>
+<tr><td><TEXTAREA style="Height:200px;Width:99%;font-Size:12;font-weight:normal;";TITLE=""; id="textAreaDfResult"; WRAP=hard>
+MainServer-01
+Filesystem             size   used  avail capacity  Mounted on
+/dev/md/dsk/d0         3.9G   1.8G   2.1G    46%    /
+/proc                    0K     0K     0K     0%    /proc
+mnttab                   0K     0K     0K     0%    /etc/mnttab
+fd                       0K     0K     0K     0%    /dev/fd
+/dev/md/dsk/d3         1.9G   1.5G   325M    83%    /var
+swap                   6.9G    96K   6.9G     1%    /var/run
+swap                   6.9G   304K   6.9G     1%    /tmp
+/dev/md/dsk/d5         6.9G   3.5G   3.3G    52%    /u02
+/dev/md/dsk/d4         9.8G   2.4G   7.3G    25%    /u01
+/dev/md/dsk/d6         6.8G   3.8G   2.9G    57%    /u03
+@192.168.11.100's password:
+MainServer-02
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/sda1                497M  166M  332M  34% /var
+@192.168.11.100's password:
+DBserver-01
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /var
+tmpfs                    1.9G   92K  1.9G  61% /u01
+tmpfs                    1.9G     0  1.9G  30% /u03
+/dev/mapper/centos-home   20G   39M   20G  41% /u02
+/dev/sda1                497M  166M  332M  34% /boot
+DBserver-02
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G  10% /var
+tmpfs                    1.9G   92K  1.9G  81% /u01
+tmpfs                    1.9G  8.7M  1.9G  51% /u04
+tmpfs                    1.9G     0  1.9G  65% /u03
+/dev/mapper/centos-home   20G   39M   20G  81% /u02
+/dev/sda1                497M  166M  332M  34% /boot
+BackupDB-01
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  51% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  50% /u02
+/dev/mapper/centos-home   20G   39M   20G  56% /u03
+/dev/sda1                497M  166M  332M  54% /var    
+Trainer-01
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  12% /u01
+tmpfs                    1.9G     0  1.9G  13% /u02
+/dev/mapper/centos-home   20G   39M   20G  14% /u03
+/dev/sda1                497M  166M  332M  15% /var
+MainS1-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  1% /u04
+tmpfs                    1.9G  8.7M  1.9G  1% /u01
+tmpfs                    1.9G     0  1.9G  10% /u02
+/dev/mapper/centos-home   20G   39M   20G  1% /u03
+/dev/sda1                497M  166M  332M  4% /var    
+MainS1-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  1% /var
+@serverName password:
+MainS2-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  2% /var
+@serverName password:
+MainS2-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  3% /var
+@serverName password:
+MainS3-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  4% /var
+@serverName password:
+MainS3-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  5% /var
+@serverName password:
+MainS5-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  6% /var
+@serverName password:
+MainS5-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  7% /var
+@serverName password:
+MainS6-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  8% /var
+@serverName password:
+MainS6-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  9% /var
+@serverName password:
+MainS7-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  10% /var
+@serverName password:
+MainS7-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  11% /var
+@serverName password:
+MainS8-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  12% /var
+@serverName password:
+MainS8-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  13% /var
+@serverName password:
+MainS9-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  14% /var
+@serverName password:
+MainS9-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  15% /var
+@serverName password:
+MainS10-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  16% /var
+@serverName password:
+MainS10-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  17% /var
+@serverName password:
+MainS11-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  18% /var
+@serverName password:
+MainS11-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  19% /var
+@serverName password:
+MainS12-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  20% /var
+@serverName password:
+MainS12-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  21% /var
+@serverName password:
+MainS13-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  22% /var
+@serverName password:
+MainS13-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  23% /var
+@serverName password:
+MainS14-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  24% /var
+@serverName password:
+MainS14-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  25% /var
+@serverName password:
+MainS15-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  26% /var
+@serverName password:
+MainS15-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  27% /var
+@serverName password:
+MainS16-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  28% /var
+@serverName password:
+MainS16-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  29% /var
+@serverName password:
+MainS17-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  30% /var
+@serverName password:
+MainS17-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  31% /var
+@serverName password:
+MainS18-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  32% /var
+@serverName password:
+MainS18-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  33% /var
+@serverName password:
+MainS19-Server-1
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  34% /var
+@serverName password:
+MainS19-Server-2
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  35% /var
+@serverName password:
+techno-dcs-01
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  36% /var
+@serverName password:
+techno-dcs-02
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  37% /var
+@serverName password:
+dumm-01
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  38% /var
+@serverName password:
+dumm-02
+Filesystem               Size  Used Avail Use% Mounted on
+/dev/mapper/centos-root   41G  5.0G   36G  13% /
+devtmpfs                 1.9G     0  1.9G   0% /dev
+tmpfs                    1.9G   92K  1.9G  11% /u04
+tmpfs                    1.9G  8.7M  1.9G  51% /u01
+tmpfs                    1.9G     0  1.9G  70% /u02
+/dev/mapper/centos-home   20G   39M   20G  91% /u03
+/dev/sda1                497M  166M  332M  39% /var</TEXTAREA></td></tr>    
+</table>
+     
+<br>
+
+
+<fieldset display=inline-block >
+<!--<legend><input type="checkbox" id="withHost" value="withHost"  style="-ms-transform: scale(2)"/><label for="withHost">&nbsp; Search `hostname` in the output.</legend>-->
+<table>
+<tr><td>List of possible commands/methods to extract server hostname.</td></tr>
+<tr><td>Method 1: for f in `cat ./servername.txt;`; do ssh -l username $f 'hostname;df -h;'; done</td></tr> 
+<tr><td>Method 2: ssh username@servername 'hostname;df -h;'</td></tr>
+<tr><td>Method 3: plink -ssh -l username -pw password servername 'hostname;df -h;' >> output.txt</td></tr>  
+<tr><td>Method 4: At each server type command : 'hostname;df -h;'</td></tr>      
+</table>   
+</fieldset>
+
+
+<div id='nameMountedSlice'>
+<table>
+    <tr>
+        <td  style="width:250px;"></td>    
+        <td colspan=5>
+        <input type="button" style="width:100%;height:40px" value="Reset Page" onClick="window.location.reload()" title="Clear page to default."> 
+        </td>
+    </tr>
+    <tr>    
+        <td style="width:250px;">Select 'Mounted' name to extract: </td>
+        <td style="width:125px;"><input type="text" value="/var" style="font-size:20px;width:95%;"></td>
+        <td style="width:125px;"><input type="text" value="/u01" style="font-size:20px;width:95%;"></td>
+        <td style="width:125px;"><input type="text" value="/u02" style="font-size:20px;width:95%;"></td>
+        <td style="width:125px;"><input type="text" value="/u03" style="font-size:20px;width:95%;"></td>
+        <td style="width:125px;"><input type="text" value="/u04" style="font-size:20px;width:95%;"></td>
+    </tr>
+
+    <tr>
+        <td style="width:250px;">Select critical level for each disk: </td>
+        <td style="width:125px;">
+        <select style='font-size:20px;width:100%;'>
+        <option value="20">20% </option>
+        <option value="25">25% </option>
+        <option value="30">30% </option>
+        <option value="35">35% </option>
+        <option value="40">40% </option>
+        <option value="45">45% </option>
+        <option value="50">50% </option>
+        <option value="55">55% </option>
+        <option value="60"  selected >60% </option>
+        <option value="65">65% </option>
+        <option value="70">70% </option>
+        <option value="75">75% </option>
+        <option value="80">80% </option>
+        <option value="85">85% </option>
+        <option value="90">90% </option>
+        <option value="95">95% </option>
+        </select>
+        </td>
+        <td style="width:125px;">
+        <select style='font-size:20px;width:100%;'>
+        <option value="20">20% </option>
+        <option value="25">25% </option>
+        <option value="30">30% </option>
+        <option value="35">35% </option>
+        <option value="40">40% </option>
+        <option value="45">45% </option>
+        <option value="50">50% </option>
+        <option value="55">55% </option>
+        <option value="60">60% </option>
+        <option value="65">65% </option>
+        <option value="70">70% </option>
+        <option value="75">75% </option>
+        <option value="80">80% </option>
+        <option value="85">85% </option>
+        <option value="90"  selected >90% </option>
+        <option value="95">95% </option>
+        </select>
+        </td>
+        <td style="width:125px;">
+        <select style='font-size:20px;width:100%;'>
+        <option value="20">20% </option>
+        <option value="25">25% </option>
+        <option value="30">30% </option>
+        <option value="35">35% </option>
+        <option value="40">40% </option>
+        <option value="45">45% </option>
+        <option value="50">50% </option>
+        <option value="55">55% </option>
+        <option value="60">60% </option>
+        <option value="65">65% </option>
+        <option value="70"  selected >70% </option>
+        <option value="75">75% </option>
+        <option value="80">80% </option>
+        <option value="85">85% </option>
+        <option value="90">90% </option>
+        <option value="95">95% </option>
+        </select>
+        </td>
+        <td style="width:125px;">
+        <select style='font-size:20px;width:100%;'>
+        <option value="20">20% </option>
+        <option value="25">25% </option>
+        <option value="30">30% </option>
+        <option value="35">35% </option>
+        <option value="40">40% </option>
+        <option value="45">45% </option>
+        <option value="50">50% </option>
+        <option value="55">55% </option>
+        <option value="60">60% </option>
+        <option value="65">65% </option>
+        <option value="70">70% </option>
+        <option value="75">75% </option>
+        <option value="80">80% </option>
+        <option value="85">85% </option>
+        <option value="90">90% </option>
+        <option value="95">95% </option>
+        <option value="100"  selected >100% </option>
+        </select>
+        </td>
+        <td style="width:125px;">
+        <select style='font-size:20px;width:100%;'>
+        <option value="20">20% </option>
+        <option value="25">25% </option>
+        <option value="30">30% </option>
+        <option value="35">35% </option>
+        <option value="40">40% </option>
+        <option value="45">45% </option>
+        <option value="50">50% </option>
+        <option value="55">55% </option>
+        <option value="60">60% </option>
+        <option value="65">65% </option>
+        <option value="70">70% </option>
+        <option value="75">75% </option>
+        <option value="80">80% </option>
+        <option value="85">85% </option>
+        <option value="90"  selected >90% </option>
+        <option value="95">95% </option>
+        </select>
+        </td>
+    <tr>
+
+    <tr>
+        <td  style="width:250px;"></td>        
+        <td colspan=5>
+        <input type="button" style="width:100%;height:40px" value="Extract Percentage" onClick="javascript:perSlicePercent();" title="Compile percentage values."> 
+        </td>
+    </tr>
+    </table>
+
+    </div>
+
+<div id='headerTable' style="overflow-y:auto;width:80%"></div>
+<div style="width:80%"><div id='resultTable' style="overflow-y:auto;"></div></div>
+
+<br>
+
+<!--
+<fieldset>
+<legend>Percentage color options.</legend>        
+<div id='sortPercent'>    
+<table>
+<tr><td>Color will transition from GREEN to YELLOW to ORANGE to RED as critical level is reached.</td></tr>
+<tr><td>Percent value of <select name="amberValue"  id="amberValue" onChange="Collecting('adv');" style='font-size:20px;'>
+	<option value="" disabled selected>Select</option>
+	<option value="20">20% </option>
+    <option value="25">25% </option>
+    <option value="30">30% </option>
+    <option value="35">35% </option>
+    <option value="40">40% </option>
+    <option value="45">45% </option>
+	<option value="50">50% </option>
+	<option value="55">55% </option>
+	<option value="60">60% </option>
+	<option value="65">65% </option>
+	<option value="70">70% </option>
+	<option value="75">75% </option>
+	<option value="80">80% </option>
+	<option value="85">85% </option>
+	<option value="90">90% </option>
+    <option value="95">95% </option>
+</select> and above, is label as red.</td></tr>
+<tr><td>Result table is updated by changing this value.</td></tr>
+</table>
+</div>
+</fieldset> 
+--> 
+
+
+   
+    
+<fieldset style="width:80%;">
+<legend>Print to WI PDF File Format</legend>    
+    
+
+  
+    
+
+<div id="outer" style="width:100%">
+        <div style="height:40px;margin:0 auto;width:500px;" >
+        <input style="height:40px;width:500px;" type="button" value="Transfer values to WI table format" onClick="javascript:id2Table();" title="Fill up WI entries."/>
+        </div>       
+
+    
+    <div  id="a4First" style="margin:0 auto;width:100%;height:70vh;overflow:auto;border-style:solid;">
+        
+        <page size="A4"> <!--page1-->
+            <table width=99% align=center>
+                <table width=100%>
+                <tr class='eachRows' id='rowHead1' name='rowHead1' align=center>
+                        <td class="noBorders">&nbsp;</td><!--width--57web--18print-->
+                        <td class="tdA4" width=200px>Server</td>
+                        <td class="tdA4" width=63px>/u01 %</td>
+                        <td class="tdA4" width=63px>/u02 %</td>
+                        <td class="tdA4" width=63px>/u04 %</td>
+                        <td class="tdA4" width=63px>/var %</td>
+                        <td class="tdA4" width=50px>OK</td>
+                        <td class="tdA4" width=50px>NOK</td>
+                        <td class="tdA4" width=181px>Remarks</td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr> 
+                <tr class='eachRows' id='MainServer-01' align=center>
+                        <td class="noBorders">&nbsp;</td>
+                        <td class="tdA4" >Central1</td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                        <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                        <td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+                        <td class="noBorders">&nbsp;</td>
+                </tr>
+                <tr class="eachRows" id='MainServer-02' align=center>
+                        <td class="noBorders">&nbsp;</td>
+                        <td class="tdA4" >Central2</td>                    
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                        <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                        <td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr>
+                
+                <tr class="eachRows" id='DBserver-01' align=center>
+                        <td class="noBorders">&nbsp;</td>
+                        <td class="tdA4" >Data-01</td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                        <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                        <td class="tdA4" ><textarea id="textarea"></textarea></textarea></td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr> 
+                <tr class="eachRows" id='DBserver-02' align=center border=1>
+                        <td class="noBorders">&nbsp;</td>
+                        <td class="tdA4" >Data-02</td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                        <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                        <td class="tdA4" ><textarea id="textarea"></textarea></textarea></td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr>
+                <tr class="eachRows" id='BackupDB-01' align=center border=1>
+                        <td class="noBorders">&nbsp;</td>
+                        <td class="tdA4" >DB-Backup</td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4" ></td>
+                        <td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+                        <td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+                        <td class="tdA4" ><textarea id="textarea"></textarea></textarea></td>
+                        <td class="noBorders">&nbsp;</td>
+                </tr> 
+				<tr class='eachRows' id='Trainer-01' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >Training-Central1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS1-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS1-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS1-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS1-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+                </table>
+            </td></tr>
+
+            </table>
+        </page><!--page1-->   
+        
+        
+        
+        
+        
+        <page size="A4"><!--page2-->
+            <table width=99% align=center>
+
+            <tr align=middle><td class="noBorders" colspan=10>
+                <table width=100% border=0>
+                <tr class='eachRows' id='rowHead2' name='rowHead2' align=center>
+                        <td class="noBorders" >&nbsp;</td><!--width--57web--18print-->
+                        <td class="tdA4" width=200px>Server</td>
+                        <td class="tdA4" width=63px>/u01 %</td>
+                        <td class="tdA4" width=63px>/u02 %</td>
+                        <td class="tdA4" width=63px>/u04 %</td>
+                        <td class="tdA4" width=63px>/var %</td>
+                        <td class="tdA4" width=50px>OK</td>
+                        <td class="tdA4" width=50px>NOK</td>
+                        <td class="tdA4" width=170px>Remarks</td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr> 
+				<tr class="eachRows" id='MainS2-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS2-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS2-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS2-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS3-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS3-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS3-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS3-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS5-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS5-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS5-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS5-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS6-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS6-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS6-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS6-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS7-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS7-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS7-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS7-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS8-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS8-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS8-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS8-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS9-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS9-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS9-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS9-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS10-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS10-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS10-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS10-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS11-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS11-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS11-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS11-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS12-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS12-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS12-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS12-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS13-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS13-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>               
+                </table>
+            </td></tr>
+
+            </table>
+        </page><!--page2-->
+        
+        
+        
+        
+        
+        
+        <page size="A4"><!--page3-->
+            <table width=99% align=center>
+
+            <tr align=middle><td class="noBorders" colspan=10>
+                <table width=100% border=0>
+                <tr class='eachRows' id='rowHead3' name='rowHead3' align=center>
+                        <td class="noBorders" >&nbsp;</td><!--width--57web--18print-->
+                        <td class="tdA4" width=200px>Server</td>
+                        <td class="tdA4" width=63px>/u01 %</td>
+                        <td class="tdA4" width=63px>/u02 %</td>
+                        <td class="tdA4" width=63px>/u04 %</td>
+                        <td class="tdA4" width=63px>/var %</td>
+                        <td class="tdA4" width=50px>OK</td>
+                        <td class="tdA4" width=50px>NOK</td>
+                        <td class="tdA4" width=170px>Remarks</td>
+                        <td class="noBorders" >&nbsp;</td>
+                </tr> 
+                    
+				<tr class="eachRows" id='MainS13-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS13-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS14-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS14-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS14-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS14-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS15-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS15-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS15-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS15-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS16-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS16-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS16-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS16-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS17-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS17-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS17-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS17-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS18-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS18-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS18-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS18-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS19-Server-1' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS19-Server1</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='MainS19-Server-2' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >MainS19-Server2</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='techno-dcs-01' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >Techno-01</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='techno-dcs-02' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >Techno-02</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='dumm-01' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >DUMY-01</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>
+				<tr class="eachRows" id='dumm-02' align=center>
+                        <td class="noBorders">&nbsp;</td>
+						<td class="tdA4" >DUMY-02</td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4" ></td>
+						<td class="tdA4 thisOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'OK');">&#10003;</label></td>
+						<td class="tdA4 thisNOK" style="font-size:35px;color:transparent;"><label  class="labelA4" onclick="javascript:clickToggle(this,'NOK');">&#10003;</label></td>
+						<td class="tdA4" ><textarea style='resize:none;' id="textarea"></textarea></textarea></td>
+						                        <td class="noBorders">&nbsp;</td>
+				</tr>                    
+                </table>
+            </td></tr>
+       
+            </table>
+        </page><!--page3-->    
+        
+    </div>
+
+        <div style="height:40px;margin:0 auto;width:500px;" >
+        <input style="height:40px;width:500px;" type="button" value="Print" onclick="javascript:printDiv('a4First')" title="Print the page."/>
+        </div>   
+    </div>
+</fieldset> 
+</body>
+</html>
